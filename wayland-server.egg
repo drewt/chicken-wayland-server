@@ -1,0 +1,7 @@
+((author "Drew Thoreson")
+ (synopsis "Bindings to the libwayland library")
+ (category graphics)
+ (license "MIT")
+ (build-dependencies bind)
+ (foreign-dependencies "libwayland")
+ (components (extension wayland-server)))

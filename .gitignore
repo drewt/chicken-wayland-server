@@ -1,0 +1,10 @@
+wayland-server.import.scm
+wayland-server.import.so
+wayland-server.so
+wayland-server.static.o
+wayland-server.build.sh
+wayland-server.install.sh
+wayland-server.link
+
+*.swp
+

@@ -4,4 +4,5 @@
  (license "MIT")
  (build-dependencies bind)
  (foreign-dependencies "libwayland")
- (components (extension wayland-server)))
+ (components (extension wayland-server
+               (link-options "-L" "-lwayland-server"))))

@@ -179,7 +179,7 @@ wl_event_loop_get_destroy_listener(struct wl_event_loop *loop,
 struct wl_display *
 wl_display_create(void);
 
-void
+___safe void
 wl_display_destroy(struct wl_display *display);
 
 struct wl_event_loop *

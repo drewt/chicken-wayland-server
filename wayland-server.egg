@@ -5,4 +5,7 @@
  (build-dependencies bind)
  (foreign-dependencies "libwayland")
  (components (extension wayland-server
+               (source-dependencies "wayland-server-core.h"
+                                    "wayland-util.h"
+                                    "wayland-types.scm")
                (link-options "-L" "-lwayland-server"))))

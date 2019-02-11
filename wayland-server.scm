@@ -90,6 +90,7 @@ struct scheme_wl_listener {
 
          make-wl-listener
          free-wl-listener
+         remove-wl-listener
          wl-listener-notify
          wl-signal-init
          wl-signal-add 
@@ -275,6 +276,10 @@ struct scheme_wl_listener {
     (foreign-lambda* void ((scheme-wl-listener* listener))
       "CHICKEN_delete_gc_root(listener->callback_root);"
       "free(listener);"))
+
+  (define remove-wl-listener
+    (foreign-lambda* void ((scheme-wl-listener* listener))
+      "wl_list_remove(&listener->listener.link);"))
 
   (define wl-listener-notify
     (getter-with-setter

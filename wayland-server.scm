@@ -25,6 +25,29 @@ struct scheme_wl_listener {
     struct wl_listener listener;
     void *callback_root;
 };
+
+static void scheme_wl_listener_notify(struct wl_listener *wl_listener, void *data)
+{
+    struct scheme_wl_listener *listener = wl_container_of(wl_listener, listener, listener);
+    C_word *ptr = C_alloc(sizeof(C_word));
+    C_save(C_mpointer_or_false(&ptr, data));
+    C_callback(CHICKEN_gc_root_ref(listener->callback_root), 1);
+}
+
+static struct scheme_wl_listener *make_wl_listener(C_word callback)
+{
+    struct scheme_wl_listener *listener = malloc(sizeof(struct scheme_wl_listener));
+    listener->listener.notify = scheme_wl_listener_notify;
+    listener->callback_root = CHICKEN_new_gc_root();
+    CHICKEN_gc_root_set(listener->callback_root, callback);
+    return listener;
+}
+
+static void free_wl_listener(struct scheme_wl_listener *listener)
+{
+    CHICKEN_delete_gc_root(listener->callback_root);
+    free(listener);
+}
 <#
 
 (include "wayland-types.scm")
@@ -260,22 +283,11 @@ struct scheme_wl_listener {
   ;; then call make-wl-listener with a lambda constructed in that environment.
   ;;
 
-  (define-external (scheme_wl_listener_notify (wl-listener* listener) (c-pointer data)) void
-    (let ((wrapper (wl-listener->scheme-listener listener)))
-      ((wl-listener-notify wrapper) data)))
-
   (define make-wl-listener
-    (foreign-lambda* scheme-wl-listener* ((scheme-object callback))
-      "struct scheme_wl_listener *listener = malloc(sizeof(struct scheme_wl_listener));"
-      "listener->listener.notify = scheme_wl_listener_notify;"
-      "listener->callback_root = CHICKEN_new_gc_root();"
-      "CHICKEN_gc_root_set(listener->callback_root, callback);"
-      "C_return(listener);"))
+    (foreign-lambda scheme-wl-listener* "make_wl_listener" scheme-object))
 
   (define free-wl-listener
-    (foreign-lambda* void ((scheme-wl-listener* listener))
-      "CHICKEN_delete_gc_root(listener->callback_root);"
-      "free(listener);"))
+    (foreign-lambda void "free_wl_listener" scheme-wl-listener*))
 
   (define remove-wl-listener
     (foreign-lambda* void ((scheme-wl-listener* listener))
@@ -287,11 +299,6 @@ struct scheme_wl_listener {
         "C_return(CHICKEN_gc_root_ref(listener->callback_root));")
       (foreign-lambda* void ((scheme-wl-listener* listener) (scheme-object callback))
         "CHICKEN_gc_root_set(listener->callback_root, callback);")))
-
-  (define wl-listener->scheme-listener
-    (foreign-lambda* scheme-wl-listener* ((wl-listener* listener))
-      "struct scheme_wl_listener *r = wl_container_of(listener, r, listener);"
-      "C_return(r);"))
 
   (define wl-signal-add
     (foreign-lambda* void ((wl-signal* signal) (scheme-wl-listener* listener))

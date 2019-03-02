@@ -66,7 +66,8 @@ wl_list_remove(struct wl_list *elm);
 int
 wl_list_length(const struct wl_list *list);
 
-int
+//int
+bool
 wl_list_empty(const struct wl_list *list);
 
 void
